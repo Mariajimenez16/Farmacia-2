@@ -7,8 +7,8 @@ Evolución del sistema de farmacia (Reto 1, SOLID) incorporando **Facade**, **Fa
 | Integrante | Rol |
 |---|---|
 | Natalia Giraldo Morales  | Arquitecta de comunicación gráfica (vistas y diagramas) |
-| María Alexandra Jiménez Suárez | Arquitecto Líder (patrones, diseño TO-BE) |
-| Juan José Álvarez Restrepo | Arquitecta de Verificación (SOLID, pruebas) |
+| María Alexandra Jiménez Suárez | Arquitecta Líder (patrones, diseño TO-BE) |
+| Juan José Álvarez Restrepo | Arquitecto de Verificación (SOLID, pruebas) |
 | Carolina Ramírez Lotero | Arquitecta de Riesgos y despliegue |
  
 *Curso Arquitectura de Software — UPB, docente Cesar Augusto López Gallego.*
