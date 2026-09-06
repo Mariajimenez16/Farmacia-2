@@ -1,0 +1,308 @@
+@startuml Diagrama_2_TOBE_Patrones
+
+title Diagrama 2 - Diseno TO-BE (SOLID + Patrones)
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam class {
+    BackgroundColor<<SinCambio>> #F5F5F5
+    BorderColor<<SinCambio>> #212121
+
+    BackgroundColor<<FactoryMethod>> #CCE5FF
+    BorderColor<<FactoryMethod>> #1565C0
+
+    BackgroundColor<<Strategy>> #FFE0B2
+    BorderColor<<Strategy>> #E65100
+
+    BackgroundColor<<Facade>> #C8E6C9
+    BorderColor<<Facade>> #2E7D32
+
+    BackgroundColor<<Extension>> #FFF9C4
+    BorderColor<<Extension>> #F9A825
+}
+
+legend top left
+  |= Color |= Capa / Patron |
+  | <back:#F5F5F5>   </back> | SOLID - sin cambios |
+  | <back:#CCE5FF>   </back> | Factory Method (nuevo) |
+  | <back:#FFE0B2>   </back> | Strategy (nuevo) |
+  | <back:#C8E6C9>   </back> | Facade (nuevo) |
+  | <back:#FFF9C4>   </back> | Extension de dominio SC-02 (IVendible) |
+endlegend
+
+' ---------- SOLID sin cambios ----------
+abstract class Persona <<SinCambio>> {
+  + Nombre : string
+  + Cedula : string
+  + Telefono : string
+  + Correo : string
+}
+class Cliente <<SinCambio>> {
+  + Puntos : int
+  + AcumularPuntos(puntos) : void
+}
+class Usuario <<SinCambio>> {
+  + UserName : string
+  + Password : string
+}
+class Laboratorio <<SinCambio>> {
+  + Nombre : string
+  + Direccion : string
+  + Telefono : string
+}
+abstract class Medicamento <<SinCambio>> {
+  + Laboratorio : Laboratorio
+}
+class MedicamentoCapsula <<SinCambio>> {
+  + TipoRelleno : TipoRelleno
+}
+class MedicamentoLiquido <<SinCambio>> {
+  + MaterialEnvase : MaterialEnvase
+  + Mililitros : int
+}
+class Comestible <<SinCambio>> {
+  + Calorias : int
+}
+class Cosmetico <<SinCambio>> {
+  + Marca : string
+}
+
+interface IRepositorioCliente <<SinCambio>>
+interface IRepositorioUsuario <<SinCambio>>
+class RepositorioClienteArchivo <<SinCambio>> {
+  + Existe(ruta) : bool
+  + LeerClientes(ruta) : IEnumerable<Cliente>
+}
+class RepositorioUsuarioArchivo <<SinCambio>> {
+  + Existe(ruta) : bool
+  + LeerUsuarios(ruta) : IEnumerable<Usuario>
+}
+
+interface INotificadorStockMinimo <<SinCambio>>
+interface INotificadorVencimiento <<SinCambio>>
+interface INotificadorPuntos <<SinCambio>>
+interface INotificadorMovimiento <<SinCambio>>
+interface IServicioNotificacion <<SinCambio>>
+class EventoStockMinimo <<SinCambio>>
+class EventoVencimiento <<SinCambio>>
+class EventoPuntos <<SinCambio>>
+class EventoMovimiento <<SinCambio>>
+class ServicioNotificacion <<SinCambio>>
+
+class ServicioCliente <<SinCambio>> {
+  + Cargar(ruta) : string
+  + ObtenerClientes() : List<Cliente>
+  + AcumularPuntos(cliente, puntos) : void
+}
+class ServicioUsuario <<SinCambio>> {
+  + Cargar(ruta) : string
+  + ObtenerUsuarios() : List<Usuario>
+}
+class ServicioAutenticacion <<SinCambio>> {
+  + Login(usuario, password) : bool
+}
+class ServicioMovimiento <<SinCambio>> {
+  + RegistrarMovimiento(movimiento) : void
+}
+class AspectoAutenticacion <<SinCambio>>
+class AspectoValidacion <<SinCambio>>
+class ServicioProducto <<SinCambio>> {
+  + AgregarProducto(producto) : string
+  + ObtenerProductos() : List<Producto>
+  + DescontarStock(producto, cantidad) : bool
+  + VerificarStock() : void
+  + VerificarVencimiento() : void
+  + CargarDesdeArchivo(ruta) : string
+}
+
+' ---------- Extension de dominio SC-02 ----------
+interface IVendible <<Extension>> {
+  + Nombre : string
+  + Precio : decimal
+  + MostrarInformacion() : void
+}
+abstract class Producto <<Extension>> {
+  + Nombre : string
+  + Precio : decimal
+  + Stock : int
+  + StockMinimo : int
+  + FechaVencimiento : DateTime
+}
+class ServicioClinico <<Extension>> {
+  + Nombre : string
+  + Precio : decimal
+  + Descripcion : string
+  + MostrarInformacion() : void
+}
+class Movimiento <<Extension>> {
+  + Fecha : DateTime
+  + Cantidad : int
+  + Tipo : string
+  + Item : IVendible
+}
+interface IRepositorioServicioClinico <<Extension>> {
+  + Existe(ruta) : bool
+  + LeerServicios(ruta) : IEnumerable<ServicioClinico>
+}
+class RepositorioServicioArchivo <<Extension>> {
+  + Existe(ruta) : bool
+  + LeerServicios(ruta) : IEnumerable<ServicioClinico>
+}
+class ServicioAtencionClinica <<Extension>> {
+  + AgregarServicio(servicio) : string
+  + ObtenerServicios() : List<ServicioClinico>
+  + BuscarServicio(nombre) : ServicioClinico
+  + Cargar(ruta) : string
+}
+
+' ---------- Factory Method ----------
+abstract class FabricaProducto <<FactoryMethod>> {
+  + {abstract} CrearProducto(datos: string[]) : Producto
+}
+class FabricaComestible <<FactoryMethod>> {
+  + CrearProducto(datos) : Producto
+  + Crear(nombre, precio, stock, calorias) : Comestible
+}
+class FabricaCosmetico <<FactoryMethod>> {
+  + CrearProducto(datos) : Producto
+  + Crear(nombre, precio, stock, marca) : Cosmetico
+}
+class FabricaMedicamentoCapsula <<FactoryMethod>> {
+  + CrearProducto(datos) : Producto
+  + Crear(nombre, precio, stock, laboratorio, tipoRelleno) : MedicamentoCapsula
+}
+class FabricaMedicamentoLiquido <<FactoryMethod>> {
+  + CrearProducto(datos) : Producto
+  + Crear(nombre, precio, stock, laboratorio, materialEnvase, volumenMl) : MedicamentoLiquido
+}
+abstract class FabricaServicio <<FactoryMethod>> {
+  + {abstract} CrearServicio(datos: string[]) : ServicioClinico
+}
+class FabricaServicioClinico <<FactoryMethod>> {
+  + CrearServicio(datos) : ServicioClinico
+  + Crear(nombre, precio, descripcion) : ServicioClinico
+}
+class ProductoFactory <<FactoryMethod>> {
+  + {static} CrearCapsula(nombre, precio, stock, laboratorio) : MedicamentoCapsula
+  + {static} CrearLiquido(nombre, precio, stock, laboratorio) : MedicamentoLiquido
+}
+class RepositorioMedicamentoArchivo <<FactoryMethod>> {
+  + Existe(ruta) : bool
+  + LeerProductos(ruta) : IEnumerable<Producto>
+}
+class RepositorioComestibleArchivo <<FactoryMethod>> {
+  + Existe(ruta) : bool
+  + LeerProductos(ruta) : IEnumerable<Producto>
+}
+class RepositorioCosmeticoArchivo <<FactoryMethod>> {
+  + Existe(ruta) : bool
+  + LeerProductos(ruta) : IEnumerable<Producto>
+}
+interface IRepositorioProducto <<FactoryMethod>> {
+  + Existe(ruta) : bool
+  + LeerProductos(ruta) : IEnumerable<Producto>
+}
+
+' ---------- Strategy ----------
+interface IDescuento <<Strategy>> {
+  + CalcularDescuento(precio: decimal) : decimal
+}
+class DescuentoSinDescuento <<Strategy>> {
+  + CalcularDescuento(precio) : decimal
+}
+class DescuentoPorcentaje <<Strategy>> {
+  + CalcularDescuento(precio) : decimal
+}
+class DescuentoMontoFijo <<Strategy>> {
+  + CalcularDescuento(precio) : decimal
+}
+class ServicioDescuento <<Strategy>> {
+  + CalcularDescuento(precio) : decimal
+}
+class ServicioVenta <<Strategy>> {
+  - estrategiaDescuento : IDescuento
+  + EstablecerEstrategiaDescuento(nueva) : void
+  + ObtenerEstrategiaDescuento() : IDescuento
+  + RegistrarVenta(item, cantidad) : bool
+}
+
+' ---------- Facade ----------
+class FarmaciaFachada <<Facade>> {
+  + CargarDatosSistema(...) : Dictionary<string,string>
+  + Autenticar(usuario, password) : bool
+  + VerificarAlertas() : void
+  + ObtenerProductos() : List<Producto>
+  + ObtenerClientes() : List<Cliente>
+  + ObtenerServiciosClinicos() : List<ServicioClinico>
+  + BuscarItemVendible(nombre) : IVendible
+  + RegistrarVenta(...) : bool
+  + AcumularPuntos(...) : bool
+  + EstablecerEstrategiaDescuento(nueva) : void
+}
+class "Program.cs" as ProgramTB <<Facade>> {
+  + Main() : void
+}
+
+' ---------- Relaciones de dominio ----------
+Persona <|-- Cliente
+Persona <|-- Usuario
+IVendible <|.. Producto
+IVendible <|.. ServicioClinico
+Producto <|-- Medicamento
+Producto <|-- Comestible
+Producto <|-- Cosmetico
+Medicamento <|-- MedicamentoCapsula
+Medicamento <|-- MedicamentoLiquido
+Medicamento --> Laboratorio
+Movimiento --> IVendible
+
+IRepositorioCliente <|.. RepositorioClienteArchivo
+IRepositorioUsuario <|.. RepositorioUsuarioArchivo
+IRepositorioServicioClinico <|.. RepositorioServicioArchivo
+RepositorioServicioArchivo --> FabricaServicio
+
+' ---------- Relaciones Factory Method ----------
+FabricaProducto <|-- FabricaComestible
+FabricaProducto <|-- FabricaCosmetico
+FabricaProducto <|-- FabricaMedicamentoCapsula
+FabricaProducto <|-- FabricaMedicamentoLiquido
+FabricaProducto ..> Producto
+FabricaServicio <|-- FabricaServicioClinico
+FabricaServicio ..> ServicioClinico
+
+IRepositorioProducto <|.. RepositorioMedicamentoArchivo
+IRepositorioProducto <|.. RepositorioComestibleArchivo
+IRepositorioProducto <|.. RepositorioCosmeticoArchivo
+RepositorioMedicamentoArchivo --> FabricaProducto
+RepositorioComestibleArchivo --> FabricaProducto
+RepositorioCosmeticoArchivo --> FabricaProducto
+ProductoFactory --> FabricaMedicamentoCapsula
+ProductoFactory --> FabricaMedicamentoLiquido
+
+' ---------- Relaciones Strategy ----------
+IDescuento <|.. DescuentoSinDescuento
+IDescuento <|.. DescuentoPorcentaje
+IDescuento <|.. DescuentoMontoFijo
+IDescuento <|.. ServicioDescuento
+ServicioVenta o-- IDescuento
+ServicioVenta --> ServicioProducto
+ServicioVenta --> ServicioMovimiento
+ServicioVenta ..> IVendible
+
+' ---------- Relaciones Facade ----------
+FarmaciaFachada --> ServicioProducto
+FarmaciaFachada --> ServicioCliente
+FarmaciaFachada --> ServicioUsuario
+FarmaciaFachada --> ServicioVenta
+FarmaciaFachada --> ServicioAutenticacion
+FarmaciaFachada --> ServicioAtencionClinica
+ProgramTB ..> FarmaciaFachada
+
+ServicioProducto --> IRepositorioProducto
+ServicioAtencionClinica --> IRepositorioServicioClinico
+ServicioCliente --> IRepositorioCliente
+ServicioUsuario --> IRepositorioUsuario
+ServicioProducto --> INotificadorStockMinimo
+ServicioProducto --> INotificadorVencimiento
+
+@enduml

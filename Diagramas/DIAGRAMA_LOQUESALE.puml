@@ -1,0 +1,172 @@
+@startuml Diagrama_1_ASIS_Recorte_Lo_Que_Sale
+
+title Diagrama 1 - Recorte del diseno ACTUAL (SOLID) - En rojo lo que sale
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam class {
+    BackgroundColor<<Retira>> #FFCDD2
+    BorderColor<<Retira>> #B71C1C
+    BackgroundColor<<SinCambio>> #F5F5F5
+    BorderColor<<SinCambio>> #616161
+}
+
+legend top left
+  |= Color |= Significado |
+  | <back:#FFCDD2>       </back> | Elemento que SALE o cambia de responsabilidad |
+  | <back:#F5F5F5>       </back> | Elemento que se conserva sin cambios |
+endlegend
+
+class Program <<Retira>> {
+  + Main() : void
+}
+
+class ProductoFactory <<Retira>> {
+  + {static} CrearCapsula(nombre, precio, stock, laboratorio) : MedicamentoCapsula
+  + {static} CrearLiquido(nombre, precio, stock, laboratorio) : MedicamentoLiquido
+}
+
+class RepositorioMedicamentoArchivo <<Retira>> {
+  + Existe(ruta) : bool
+  + LeerProductos(ruta) : IEnumerable<Producto>
+}
+class RepositorioComestibleArchivo <<Retira>> {
+  + Existe(ruta) : bool
+  + LeerProductos(ruta) : IEnumerable<Producto>
+}
+class RepositorioCosmeticoArchivo <<Retira>> {
+  + Existe(ruta) : bool
+  + LeerProductos(ruta) : IEnumerable<Producto>
+}
+class RepositorioUsuarioArchivo <<SinCambio>> {
+  + Existe(ruta) : bool
+  + LeerUsuarios(ruta) : IEnumerable<Usuario>
+}
+class RepositorioClienteArchivo <<SinCambio>> {
+  + Existe(ruta) : bool
+  + LeerClientes(ruta) : IEnumerable<Cliente>
+}
+
+interface IRepositorioProducto <<SinCambio>> {
+  + Existe(ruta) : bool
+  + LeerProductos(ruta) : IEnumerable<Producto>
+}
+interface IRepositorioCliente <<SinCambio>>
+interface IRepositorioUsuario <<SinCambio>>
+interface IDescuento <<SinCambio>> {
+  + CalcularDescuento(precio: decimal) : decimal
+}
+interface INotificadorStockMinimo <<SinCambio>> {
+  + NotificarStockMinimo(producto) : void
+}
+interface INotificadorVencimiento <<SinCambio>> {
+  + NotificarVencimiento(producto) : void
+}
+
+class ServicioProducto <<SinCambio>> {
+  + AgregarProducto(producto) : string
+  + ObtenerProductos() : List<Producto>
+  + VerificarStock() : void
+  + VerificarVencimiento() : void
+  + CargarDesdeArchivo(ruta) : string
+}
+class ServicioDescuento <<Retira>> {
+  + CalcularDescuento(precio: decimal) : decimal
+}
+class ServicioCliente <<SinCambio>> {
+  + Cargar(ruta) : string
+  + ObtenerClientes() : List<Cliente>
+  + AcumularPuntos(cliente, puntos) : void
+}
+class ServicioUsuario <<SinCambio>> {
+  + Cargar(ruta) : string
+  + ObtenerUsuarios() : List<Usuario>
+}
+class ServicioAutenticacion <<SinCambio>> {
+  + Login(usuario, password) : bool
+}
+class ServicioMovimiento <<SinCambio>> {
+  + RegistrarMovimiento(movimiento) : void
+}
+class ServicioNotificacion <<SinCambio>>
+
+abstract class Persona <<SinCambio>> {
+  + Nombre : string
+  + Cedula : string
+  + Telefono : string
+  + Correo : string
+}
+class Cliente <<SinCambio>> {
+  + Puntos : int
+  + AcumularPuntos(puntos) : void
+}
+class Usuario <<SinCambio>> {
+  + UserName : string
+  + Password : string
+}
+abstract class Producto <<SinCambio>> {
+  + Nombre : string
+  + Precio : decimal
+  + Stock : int
+  + StockMinimo : int
+  + FechaVencimiento : DateTime
+  + MostrarInformacion() : void
+}
+class Medicamento <<SinCambio>> {
+  + Laboratorio : Laboratorio
+}
+class MedicamentoCapsula <<SinCambio>> {
+  + TipoRelleno : TipoRelleno
+}
+class MedicamentoLiquido <<SinCambio>> {
+  + MaterialEnvase : MaterialEnvase
+  + Mililitros : int
+}
+class Comestible <<SinCambio>> {
+  + Calorias : int
+}
+class Cosmetico <<SinCambio>> {
+  + Marca : string
+}
+class Laboratorio <<SinCambio>> {
+  + Nombre : string
+  + Direccion : string
+  + Telefono : string
+}
+class Movimiento <<Retira>> {
+  + Fecha : DateTime
+  + Cantidad : int
+  + Tipo : string
+  + Producto : Producto
+}
+
+Persona <|-- Cliente
+Persona <|-- Usuario
+Producto <|-- Medicamento
+Producto <|-- Comestible
+Producto <|-- Cosmetico
+Medicamento <|-- MedicamentoCapsula
+Medicamento <|-- MedicamentoLiquido
+Medicamento --> Laboratorio
+
+IRepositorioProducto <|.. RepositorioMedicamentoArchivo
+IRepositorioProducto <|.. RepositorioComestibleArchivo
+IRepositorioProducto <|.. RepositorioCosmeticoArchivo
+IRepositorioCliente <|.. RepositorioClienteArchivo
+IRepositorioUsuario <|.. RepositorioUsuarioArchivo
+IDescuento <|.. ServicioDescuento
+
+ServicioProducto --> IRepositorioProducto
+ServicioProducto --> INotificadorStockMinimo
+ServicioProducto --> INotificadorVencimiento
+ServicioCliente --> IRepositorioCliente
+ServicioUsuario --> IRepositorioUsuario
+
+Movimiento --> Producto
+
+Program ..> ServicioProducto
+Program ..> ServicioMovimiento
+Program ..> Movimiento
+Program ..> ProductoFactory
+
+@enduml
