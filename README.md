@@ -16,7 +16,7 @@ Evolución del sistema de farmacia (Reto 1, SOLID) incorporando **Facade**, **Fa
  
 ## Video de sustentación
  
-🎥 **[Link al video de YouTube — pendiente de agregar]**
+🎥 **https://youtu.be/dkaMhM05JSM**
  
 ## Patrones adoptados
  
